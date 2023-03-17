@@ -3,11 +3,11 @@ extern crate rocket;
 
 mod my_cors;
 mod rediss;
-use rocket::serde::{json::Json, Deserialize};
+use rocket::serde::{json::Json, Deserialize, Serialize};
 
 use rocket::{get, routes};
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Task<'r> {
     title: &'r str,
