@@ -2,7 +2,7 @@ extern crate redis;
 
 use crate::Task;
 
-pub fn get_tasks() -> Vec<String> {
+pub fn get_last_task() -> Result<Task, String> {
     let client = redis::Client::open("redis://127.0.0.1:6379").unwrap();
     let mut conn = client.get_connection().unwrap();
 
@@ -11,23 +11,12 @@ pub fn get_tasks() -> Vec<String> {
         .query(&mut conn)
         .expect("failed to execute LLEN for 'tasks'");
 
-    let items: Vec<String> = redis::cmd("RPOP")
+    if keys_length <= 0 {
+        return Err(String::from("Not enough tasks in queue"));
+    }
+
+    Ok(redis::cmd("RPOP")
         .arg("tasks")
-        .arg(keys_length)
-        .query(&mut conn)
-        .expect("failed to execute RPOP for 'tasks'");
-
-    return items;
-}
-
-pub fn get_last_task() -> Task<'static> {
-    let client = redis::Client::open("redis://127.0.0.1:6379").unwrap();
-    let mut conn = client.get_connection().unwrap();
-
-    let bar: String = redis::cmd("GET")
-        .arg("tasks")
-        .query(&mut conn)
-        .expect("failed to execute GET for 'tasks'");
-
-    serde_json::from_str::<Task>(bar.as_str()).expect("Exec")
+        .query::<Task>(&mut conn)
+        .expect("failed to execute RPOP for 'tasks'"))
 }
