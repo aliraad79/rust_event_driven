@@ -1,4 +1,4 @@
-use rocket::serde::json::serde_json::json;
+use rocket::serde::json::serde_json;
 
 use crate::Task;
 
@@ -9,7 +9,7 @@ pub fn add_task(task: Task) {
     let mut conn = client.get_connection().unwrap();
     let _: () = redis::cmd("LPUSH")
         .arg("tasks")
-        .arg(json!(task).to_string())
+        .arg(serde_json::to_string(&task).unwrap())
         .query(&mut conn)
         .expect("failed to execute LPUSH for 'items'");
 }
