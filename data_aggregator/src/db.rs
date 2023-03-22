@@ -14,11 +14,11 @@ pub fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
-pub fn add_to_db(task: Vec<NewTask>) {
+pub fn add_to_db(tasks: Vec<NewTask>) {
     let mut conn = establish_connection();
 
     diesel::insert_into(tasks::table)
-        .values(&task)
+        .values(&tasks)
         .execute(&mut conn)
         .expect("Error saving new post");
 
