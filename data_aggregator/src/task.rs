@@ -10,7 +10,15 @@ pub struct Task {
     pub title: String,
     pub description: String,
 }
-impl FromRedisValue for Task {
+
+#[derive(Deserialize, Insertable)]
+#[diesel(table_name = tasks)]
+pub struct NewTask {
+    pub title: String,
+    pub description: String,
+}
+
+impl FromRedisValue for NewTask {
     fn from_redis_value(v: &Value) -> RedisResult<Self> {
         let json_str: String = from_redis_value(v)?;
 
@@ -21,11 +29,4 @@ impl FromRedisValue for Task {
 
         Ok(result)
     }
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = tasks)]
-pub struct NewTask<'a> {
-    pub title: &'a str,
-    pub description: &'a str,
 }
