@@ -13,7 +13,12 @@ impl Fairing for CORS {
     }
 
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        if _request.method() == Method::Options {
+        let host = _request.host().unwrap();
+
+        if _request.method() == Method::Options
+            && host.domain() == "127.0.0.1"
+            && host.port() == Some(8000)
+        {
             response.set_status(Status::Ok);
             response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
             response.set_header(Header::new(
