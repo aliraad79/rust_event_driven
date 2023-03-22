@@ -21,7 +21,6 @@ fn index() -> &'static str {
 
 #[post("/task", data = "<task>")]
 fn new(task: Json<Task<'_>>) {
-    println!("Task {} {}", task.title, task.description);
     rediss::add_task(task.into_inner());
 }
 
