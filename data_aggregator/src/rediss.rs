@@ -1,22 +1,15 @@
 extern crate redis;
 
-use crate::Task;
+use redis::RedisError;
 
-pub fn get_last_task() -> Result<Task, String> {
+use crate::task::NewTask;
+
+pub fn get_last_n_task(n: i32) -> Result<Vec<NewTask>, RedisError> {
     let client = redis::Client::open("redis://127.0.0.1:6379").unwrap();
     let mut conn = client.get_connection().unwrap();
 
-    let keys_length: usize = redis::cmd("LLEN")
+    redis::cmd("RPOP")
         .arg("tasks")
-        .query(&mut conn)
-        .expect("failed to execute LLEN for 'tasks'");
-
-    if keys_length <= 0 {
-        return Err(String::from("Not enough tasks in queue"));
-    }
-
-    Ok(redis::cmd("RPOP")
-        .arg("tasks")
-        .query::<Task>(&mut conn)
-        .expect("failed to execute RPOP for 'tasks'"))
+        .arg(n)
+        .query::<Vec<NewTask>>(&mut conn)
 }
