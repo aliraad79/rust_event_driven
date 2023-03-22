@@ -30,7 +30,6 @@ impl Fairing for CORS {
             return;
         }
 
-        println!("Setting access control allow origin");
         response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
         response.set_header(Header::new(
             "Access-Control-Allow-Methods",
