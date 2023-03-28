@@ -2,9 +2,12 @@ mod db;
 mod rediss;
 mod schema;
 mod task;
+mod celery_tasks;
+
+use dotenvy::dotenv;
 
 fn main() {
-    // let tasks_string = rediss::get_tasks();
+    dotenv().ok();
     let last_task = rediss::get_last_n_task(10);
 
     match last_task {
