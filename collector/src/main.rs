@@ -1,32 +1,40 @@
-#[macro_use]
-extern crate rocket;
+use actix_web::{
+    get, middleware::Logger, post, web::Json, App, HttpResponse, HttpServer, Responder,
+};
+use serde::{Deserialize, Serialize};
+use env_logger;
 
-mod my_cors;
 mod rediss;
-use rocket::serde::{json::Json, Deserialize, Serialize};
-
-use rocket::{get, routes};
 
 #[derive(Deserialize, Serialize)]
-#[serde(crate = "rocket::serde")]
-pub struct Task<'r> {
-    title: &'r str,
-    description: &'r str,
+pub struct Task {
+    title: String,
+    description: String,
 }
 
 #[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
+async fn index() -> impl Responder {
+    HttpResponse::Ok().body("Hello world!")
 }
 
-#[post("/task", data = "<task>")]
-fn new(task: Json<Task<'_>>) {
-    rediss::add_task(task.into_inner());
+#[post("/task")]
+async fn new_task(task: Json<Task>) -> impl Responder {
+    rediss::add_task(task.into_inner()).await;
+    HttpResponse::Ok().body("OK!")
 }
 
-#[launch]
-fn rocket() -> _ {
-    rocket::build()
-        .attach(my_cors::CORS)
-        .mount("/", routes![index, new])
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "info");
+    env_logger::init();
+    
+    HttpServer::new(|| {
+        App::new()
+            .wrap(Logger::default())
+            .service(index)
+            .service(new_task)
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
