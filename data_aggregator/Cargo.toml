@@ -9,6 +9,6 @@ edition = "2021"
 redis = "0.22.3"
 serde_json = "1.0.94"
 dotenvy = "0.15.6"
-celery = "0.5.3"
 serde = { version = "1.0.158", features = ["derive"] }
 diesel = { version = "2.0.3", features = ["postgres"] }
+env_logger = "0.10.0"
