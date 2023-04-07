@@ -8,7 +8,7 @@ struct Task {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    for _ in 0..10 {
+    for _ in 0..500 {
         let task = Task {
             title: String::from("test"),
             description: String::from("Descriptions is long"),
@@ -18,10 +18,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .post("http://127.0.0.1:8080/task")
             .json(&task)
             .send()
-            .await
-            .unwrap();
-
-        println!("{:#?}", res);
+            .await;
+        match res {
+            Ok(ok_res) => println!("{:#?}", ok_res),
+            Err(_err) => println!("Err on request to server"),
+        }
     }
     Ok(())
 }
