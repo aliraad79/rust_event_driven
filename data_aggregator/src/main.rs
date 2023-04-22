@@ -3,7 +3,7 @@ mod rediss;
 mod schema;
 mod task;
 
-use dotenvy::dotenv;
+use dotenv::dotenv;
 use std::{
     thread,
     time::{Duration, Instant},
