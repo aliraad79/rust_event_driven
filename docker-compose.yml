@@ -1,0 +1,41 @@
+version: "3.1"
+services:
+  # Helper Services ----------------------------
+  redis:
+    image: redis:6.2-bullseye
+
+  db:
+    image: postgres:15.2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tasks
+
+  # --------------------------------------------
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/confd.:/etc/nginx/conf.d
+    ports:
+      - "5000:5000"
+  
+
+  collector:
+    build: ./collector
+    depends_on:
+      - redis
+    ports:
+      - "8080"
+
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  aggregator:
+    build: ./data_aggregator
+    env_file:
+      - ./data_aggregator/.env
+    depends_on:
+      - redis
+      - db
+
